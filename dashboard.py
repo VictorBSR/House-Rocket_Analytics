@@ -666,7 +666,7 @@ if __name__ == "__main__":
 
         # load data
         #path = 'kc_house_data.csv'
-        path = 'https://raw.githubusercontent.com/VictorBSR/Data_Science/main/house_rocket/kc_house_data.csv'
+        path = 'https://raw.githubusercontent.com/VictorBSR/House-Rocket_Analytics/main/kc_house_data.csv'
         url='https://opendata.arcgis.com/datasets/83fc2e72903343aabff6de8cb445b81c_2.geojson'
         data = get_data( path )
         full_data = get_full_data( path )
