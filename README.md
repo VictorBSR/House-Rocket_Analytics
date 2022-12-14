@@ -8,7 +8,7 @@ House Rocket é uma empresa fictícia que visa analisar dados de propriedades (i
 
 O projeto em questão aborda a criação uma solução completa, na forma de um painel interativo hospedado na nuvem, para análise do ponto de vista do CEO da empresa sobre quais são os melhores negócios disponíveis no mercado. O painel inclui visualizações, análise de estatística descritiva, insights de negócio e recomendações de compra e venda.
 
-**O dashboard interativo pode ser acessado em: https://victorbsr-data-science-house-rocketdashboard-gqezu8.streamlit.app/**
+**O dashboard interativo pode ser acessado em: https://victorbsr-house-rocket-analytics-dashboard-a49566.streamlit.app/**
 
 
 # 1. Descrição - Questões de Negócio
