@@ -8,7 +8,7 @@ House Rocket is a fictional company focused on analyzing property data and condu
 
 This project presents a complete solution in the form of an interactive, cloud-hosted dashboard from the CEO’s perspective on the best available business deals in the market. The dashboard includes visualizations, descriptive statistical analysis, business insights, and purchase and sale recommendations.
 
-**The interactive dashboard is accessible at: https://victorbsr-house-rocket-analytics-dashboard-a49566.streamlit.app/**
+**The interactive dashboard is accessible at: https://house-rocket-analytics-dashboard.streamlit.app/**
 
 
 # 1. Description - Business Questions
