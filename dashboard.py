@@ -14,14 +14,14 @@ st.set_page_config(layout="wide")
 
 
 # get geofile
-@st.cache( allow_output_mutation=True )
+@st.cache_data(persist=True)
 def get_geofile( url ):
     geofile = geopandas.read_file(url)
 
     return geofile
 
 # read data
-@st.cache( allow_output_mutation=True )
+@st.cache_data(persist=True)
 def get_data( path ):
     try:
         data = pd.read_csv( path )
@@ -213,16 +213,28 @@ def display_stats_by_zipcode(df):
     df9 = df[df['season']=='spring'][['price','zipcode']].groupby('zipcode').median().reset_index()
 
     # merge
-    m1 = pd.merge(df1, df2, on='zipcode', how='inner')
-    m2 = pd.merge(m1, df3, on='zipcode', how='inner')
-    m3 = pd.merge(m2, df4, on='zipcode', how='inner')
-    m4 = pd.merge(m3, df5, on='zipcode', how='inner')
-    m5 = pd.merge(m4, df6, on='zipcode', how='inner')
-    m6 = pd.merge(m5, df7, on='zipcode', how='inner')
-    m7 = pd.merge(m6, df8, on='zipcode', how='inner')
-    df = pd.merge(m7, df9, on='zipcode', how='inner')
+    # m1 = pd.merge(df1, df2, on='zipcode', how='inner')
+    # m2 = pd.merge(m1, df3, on='zipcode', how='inner')
+    # m3 = pd.merge(m2, df4, on='zipcode', how='inner')
+    # m4 = pd.merge(m3, df5, on='zipcode', how='inner')
+    # m5 = pd.merge(m4, df6, on='zipcode', how='inner')
+    # m6 = pd.merge(m5, df7, on='zipcode', how='inner')
+    # m7 = pd.merge(m6, df8, on='zipcode', how='inner')
+    # df = pd.merge(m7, df9, on='zipcode', how='inner')
 
-    df.columns = ['ZIPCODE', 'TOTAL HOUSES', 'PRICE AVG', 'PRICE MEDIAN', 'SQRT LIVING', 'PRICE/M2', 'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
+    # df.columns = ['ZIPCODE', 'TOTAL HOUSES', 'PRICE AVG', 'PRICE MEDIAN', 'SQRT LIVING', 'PRICE/M2', 'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
+    m1 = pd.merge(df1, df2, on='zipcode', how='inner', suffixes=('_TOTAL', '_SUMMER'))
+    m2 = pd.merge(m1, df3, on='zipcode', how='inner', suffixes=('', '_FALL'))
+    m3 = pd.merge(m2, df4, on='zipcode', how='inner', suffixes=('', '_WINTER'))
+    m4 = pd.merge(m3, df5, on='zipcode', how='inner', suffixes=('', '_SPRING'))
+    m5 = pd.merge(m4, df6, on='zipcode', how='inner', suffixes=('', '_6'))
+    m6 = pd.merge(m5, df7, on='zipcode', how='inner', suffixes=('', '_7'))
+    m7 = pd.merge(m6, df8, on='zipcode', how='inner', suffixes=('', '_8'))
+    df = pd.merge(m7, df9, on='zipcode', how='inner', suffixes=('', '_9'))
+
+    # Renaming the columns
+    df.columns = ['ZIPCODE', 'TOTAL HOUSES', 'PRICE AVG', 'PRICE MEDIAN', 'SQRT LIVING', 'PRICE/M2', 
+                  'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
 
     st.header('Descriptive summary - by region and season')
     st.dataframe(df)
@@ -332,18 +344,31 @@ def define_seasonality(df):
 def define_price_median_per_region(df):
 
     # grouping by region and calculating median
-    df1 = df[['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index()
-    df2 = df[df['season']=='summer'][['price','zipcode']].groupby('zipcode').median().reset_index()
-    df3 = df[df['season']=='fall'][['price','zipcode']].groupby('zipcode').median().reset_index()
-    df4 = df[df['season']=='winter'][['price','zipcode']].groupby('zipcode').median().reset_index()
-    df5 = df[df['season']=='spring'][['price','zipcode']].groupby('zipcode').median().reset_index()
+    # df1 = df[['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index()
+    # df2 = df[df['season']=='summer'][['price','zipcode']].groupby('zipcode').median().reset_index()
+    # df3 = df[df['season']=='fall'][['price','zipcode']].groupby('zipcode').median().reset_index()
+    # df4 = df[df['season']=='winter'][['price','zipcode']].groupby('zipcode').median().reset_index()
+    # df5 = df[df['season']=='spring'][['price','zipcode']].groupby('zipcode').median().reset_index()
 
+    # m1 = pd.merge(df1, df2, on='zipcode', how='inner')
+    # m2 = pd.merge(m1, df3, on='zipcode', how='inner')
+    # m3 = pd.merge(m2, df4, on='zipcode', how='inner')
+    # data = pd.merge(m3, df5, on='zipcode', how='inner')
+    # data.columns = ['ZIPCODE', 'PRICE', 'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
+    df1 = df[['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index().rename(columns={'price': 'PRICE'})
+    df2 = df[df['season'] == 'summer'][['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index().rename(columns={'price': 'PRICE MEDIAN SUMMER'})
+    df3 = df[df['season'] == 'fall'][['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index().rename(columns={'price': 'PRICE MEDIAN FALL'})
+    df4 = df[df['season'] == 'winter'][['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index().rename(columns={'price': 'PRICE MEDIAN WINTER'})
+    df5 = df[df['season'] == 'spring'][['price', 'zipcode']].groupby('zipcode')['price'].median().reset_index().rename(columns={'price': 'PRICE MEDIAN SPRING'})
+
+    # Merge the dataframes step by step with renamed columns
     m1 = pd.merge(df1, df2, on='zipcode', how='inner')
     m2 = pd.merge(m1, df3, on='zipcode', how='inner')
     m3 = pd.merge(m2, df4, on='zipcode', how='inner')
     data = pd.merge(m3, df5, on='zipcode', how='inner')
-    data.columns = ['ZIP', 'PRICE', 'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
 
+    # Final column names
+    data.columns = ['ZIPCODE', 'PRICE', 'PRICE MEDIAN SUMMER', 'PRICE MEDIAN FALL', 'PRICE MEDIAN WINTER', 'PRICE MEDIAN SPRING']
 
     # setting price median on original df
     values = []
@@ -352,11 +377,11 @@ def define_price_median_per_region(df):
     values_winter = []
     values_spring = []
     for index, row in df.iterrows():
-        values.append(data.loc[data['ZIP'] == row['zipcode'], 'PRICE'].values[0])
-        values_summer.append(data.loc[data['ZIP'] == row['zipcode'], 'PRICE MEDIAN SUMMER'].values[0])
-        values_fall.append(data.loc[data['ZIP'] == row['zipcode'], 'PRICE MEDIAN FALL'].values[0])
-        values_winter.append(data.loc[data['ZIP'] == row['zipcode'], 'PRICE MEDIAN WINTER'].values[0])
-        values_spring.append(data.loc[data['ZIP'] == row['zipcode'], 'PRICE MEDIAN SPRING'].values[0])
+        values.append(data.loc[data['ZIPCODE'] == row['zipcode'], 'PRICE'].values[0])
+        values_summer.append(data.loc[data['ZIPCODE'] == row['zipcode'], 'PRICE MEDIAN SUMMER'].values[0])
+        values_fall.append(data.loc[data['ZIPCODE'] == row['zipcode'], 'PRICE MEDIAN FALL'].values[0])
+        values_winter.append(data.loc[data['ZIPCODE'] == row['zipcode'], 'PRICE MEDIAN WINTER'].values[0])
+        values_spring.append(data.loc[data['ZIPCODE'] == row['zipcode'], 'PRICE MEDIAN SPRING'].values[0])
     df['price_med'] = values
     df['price_med_summer'] = values_summer
     df['price_med_fall'] = values_fall
@@ -456,9 +481,10 @@ def display_price_map(df, geofile):
         c2.header('Price Density')
 
         df2 = df[['price', 'zipcode']].groupby('zipcode').mean().reset_index()
-        df2.columns = ['ZIP', 'PRICE']
+        df2.columns = ['ZIPCODE', 'PRICE']
 
-        geofile = geofile[geofile['ZIP'].isin(df2['ZIP'].tolist())]
+        geofile['ZIPCODE'] = geofile['GEOID10']
+        geofile = geofile[geofile['ZIPCODE'].isin(df2['ZIPCODE'].tolist())]
 
         region_price_map = folium.Map( 
             location=[df['lat'].mean(), 
@@ -466,15 +492,14 @@ def display_price_map(df, geofile):
             default_zoom_start=15
         ) 
 
-
-        region_price_map.choropleth(data = df2,
-                                    geo_data = geofile,
-                                    columns=['ZIP', 'PRICE'],
-                                    key_on='feature.properties.ZIP',
-                                    fill_color='YlOrRd',
-                                    fill_opacity = 0.7,
-                                    line_opacity = 0.2,
-                                    legend_name='AVG PRICE')
+        folium.Choropleth(data = df2,
+                        geo_data = geofile,
+                        columns=['ZIPCODE', 'PRICE'],
+                        key_on='feature.properties.ZIPCODE',
+                        fill_color='YlOrRd',
+                        fill_opacity = 0.7,
+                        line_opacity = 0.2,
+                        legend_name='AVG PRICE').add_to(region_price_map)
 
         with c2:
             folium_static(region_price_map)
@@ -646,7 +671,7 @@ if __name__ == "__main__":
     try:
         ### 1. INTRODUCTION ###
         c1, c2, c3 = st.columns(3)
-        icon= 'https://github.com/VictorBSR/Data_Science/blob/main/house_rocket/icon.png?raw=true'
+        icon= 'https://github.com/VictorBSR/House-Rocket_Analytics/blob/main/icon.png?raw=true'
         c2.image(icon, width=350)
         st.markdown("<h1 style='text-align: center; color: black;'>House Rocket - Dashboard</h1>", unsafe_allow_html=True)
         st.markdown( '### House Prices Data Analysis' )
@@ -667,7 +692,7 @@ if __name__ == "__main__":
         # load data
         #path = 'kc_house_data.csv'
         path = 'https://raw.githubusercontent.com/VictorBSR/House-Rocket_Analytics/main/kc_house_data.csv'
-        url='https://opendata.arcgis.com/datasets/83fc2e72903343aabff6de8cb445b81c_2.geojson'
+        url= 'zip-codes.geojson' #'http://data-seattlecitygis.opendata.arcgis.com/datasets/383027d103f042499693da22d72d10e3_0.geojson' # this is a geojson url
         data = get_data( path )
         full_data = get_full_data( path )
         geofile = get_geofile( url )
